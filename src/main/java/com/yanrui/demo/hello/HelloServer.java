@@ -31,7 +31,7 @@ public class HelloServer {
     //                设置nio的双向通道
                     .channel(NioServerSocketChannel.class)
     //                子处理器，用于处理workerGroup
-                    .childHandler(null);
+                    .childHandler(new HelloServerInitializer());
 
 //        启动server，并且设置为8088为启动端口号，同时启动方式为同步
             ChannelFuture channelFuture = serverBootstrap.bind(8088).sync();
