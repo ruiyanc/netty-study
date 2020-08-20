@@ -3,6 +3,7 @@ package com.yanrui.demo.hello;
 import com.sun.xml.internal.bind.marshaller.NioEscapeHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
@@ -18,9 +19,9 @@ public class HelloServer {
 
         //定义一对线程组
         //主线程组，用于接受客户端的连接，但是不做任何处理
-        NioEventLoopGroup bossGroup = new NioEventLoopGroup();
+        EventLoopGroup bossGroup = new NioEventLoopGroup();
         //从线程组，主线程组会把任务丢给他，让线程组做任务
-        NioEventLoopGroup workerGroup = new NioEventLoopGroup();
+        EventLoopGroup workerGroup = new NioEventLoopGroup();
 
         try {
 
