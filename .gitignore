@@ -31,5 +31,3 @@ build/
 .mvn/
 mvnw
 mvnw.cmd
-src/main/java/com/yanrui/demo/controller/
-src/main/java/com/yanrui/demo/service/
