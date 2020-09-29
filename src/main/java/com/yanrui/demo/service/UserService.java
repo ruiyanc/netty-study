@@ -1,6 +1,7 @@
 package com.yanrui.demo.service;
 
 import com.yanrui.demo.pojo.User;
+import tk.mybatis.mapper.entity.Example;
 
 /**
  * @author 许睿
@@ -31,4 +32,19 @@ public interface UserService {
      * @return
      */
     public User saveUser(User user);
+
+    /**
+     * 搜索朋友的前置条件
+     * @param myUserId
+     * @param friendUsername
+     * @return
+     */
+    public Integer preconditionSearchFriends(String myUserId, String friendUsername);
+
+    /**
+     * 根据用户名获取User对象
+     * @param username
+     * @return
+     */
+    public User queryUserInfoByUsername(String username);
 }

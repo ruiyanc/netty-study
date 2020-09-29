@@ -1,5 +1,6 @@
 package com.yanrui.demo.controller;
 
+import com.yanrui.demo.enums.SearchFriendStatusEnum;
 import com.yanrui.demo.pojo.User;
 import com.yanrui.demo.pojo.vo.UserVO;
 import com.yanrui.demo.service.UserService;
@@ -54,5 +55,32 @@ public class RegistOrLoginController {
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(userResult, userVO);
         return JSONResult.ok(userVO);
+    }
+
+    /**
+     * 搜索好友接口,根据账号匹配查询
+     * @param userId
+     * @param friendUsername
+     * @return
+     */
+    @PostMapping("search")
+    public JSONResult searchUser(String userId, String friendUsername) {
+
+        //判断myUserId和friendUsername不能为空
+        if (StringUtils.isBlank(userId) || StringUtils.isBlank(friendUsername)) {
+            return JSONResult.errorMsg("");
+        }
+
+        //搜索用户不存在,搜索账号是自己,搜索已经是好友
+        Integer status = userService.preconditionSearchFriends(userId, friendUsername);
+        if (status.equals(SearchFriendStatusEnum.SUCCESS.status)) {
+            User user = userService.queryUserInfoByUsername(friendUsername);
+            UserVO userVO = new UserVO();
+            BeanUtils.copyProperties(user, userVO);
+            return JSONResult.ok(userVO);
+        } else {
+            String errorMsg = SearchFriendStatusEnum.getMsgByKey(status);
+            return JSONResult.errorMsg(errorMsg);
+        }
     }
 }
