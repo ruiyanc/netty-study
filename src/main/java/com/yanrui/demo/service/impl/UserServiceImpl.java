@@ -3,8 +3,10 @@ package com.yanrui.demo.service.impl;
 import com.yanrui.demo.enums.SearchFriendStatusEnum;
 import com.yanrui.demo.mapper.FriendMapper;
 import com.yanrui.demo.mapper.UserMapper;
+import com.yanrui.demo.mapper.UserRequestMapper;
 import com.yanrui.demo.pojo.Friend;
 import com.yanrui.demo.pojo.User;
+import com.yanrui.demo.pojo.UserRequest;
 import com.yanrui.demo.service.UserService;
 import com.yanrui.demo.utils.KeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
+
+import java.util.Date;
 
 /**
  * @author 许睿
@@ -27,6 +31,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private FriendMapper friendMapper;
+
+    @Autowired
+    private UserRequestMapper userRequestMapper;
 
     @Override
     public boolean queryUsernameIsExist(String username) {
@@ -93,5 +100,44 @@ public class UserServiceImpl implements UserService {
         cu.andEqualTo("username", username);
         return userMapper.selectOneByExample(eu);
     }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public User updateUserInfo(User user) {
+        userMapper.updateByPrimaryKeySelective(user);
+        return queryUserById(user.getId());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public void sendFriendRequest(String userId, String friendUsername) {
+//        根据用户名把朋友信息查询出来
+        User friend = queryUserInfoByUsername(friendUsername);
+
+//        查询发送好友请求记录表
+        Example ur = new Example(UserRequest.class);
+        Example.Criteria urc = ur.createCriteria();
+        urc.andEqualTo("sendUserId", userId);
+        urc.andEqualTo("acceptUserId", friend.getId());
+        UserRequest userRequest = userRequestMapper.selectOneByExample(ur);
+        if (userRequest == null) {
+//            如果不是我的好友，并没有好友记录添加则新增好友请求记录
+            String requestId = KeyUtil.genUniqueKey();
+
+            UserRequest request = new UserRequest();
+            request.setId(requestId);
+            request.setSendUserId(userId);
+            request.setAcceptUserId(friend.getId());
+            request.setRequestDateTime(new Date());
+            userRequestMapper.insert(request);
+
+        }
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public User queryUserById(String userId) {
+        return userMapper.selectByPrimaryKey(userId);
+    }
+
 
 }

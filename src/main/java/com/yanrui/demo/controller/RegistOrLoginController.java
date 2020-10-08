@@ -2,6 +2,7 @@ package com.yanrui.demo.controller;
 
 import com.yanrui.demo.enums.SearchFriendStatusEnum;
 import com.yanrui.demo.pojo.User;
+import com.yanrui.demo.pojo.bo.UsersBO;
 import com.yanrui.demo.pojo.vo.UserVO;
 import com.yanrui.demo.service.UserService;
 import com.yanrui.demo.utils.JSONResult;
@@ -58,6 +59,21 @@ public class RegistOrLoginController {
     }
 
     /**
+     * @Description: 设置用户昵称
+     */
+    @PostMapping("/setNickname")
+    public JSONResult setNickname(@RequestBody UsersBO userBO) throws Exception {
+
+        User user = new User();
+        user.setId(userBO.getUserId());
+        user.setNickname(userBO.getNickname());
+
+        User result = userService.updateUserInfo(user);
+
+        return JSONResult.ok(result);
+    }
+
+    /**
      * 搜索好友接口,根据账号匹配查询
      * @param userId
      * @param friendUsername
@@ -66,7 +82,7 @@ public class RegistOrLoginController {
     @PostMapping("search")
     public JSONResult searchUser(String userId, String friendUsername) {
 
-        //判断myUserId和friendUsername不能为空
+        //判断userId和friendUsername不能为空
         if (StringUtils.isBlank(userId) || StringUtils.isBlank(friendUsername)) {
             return JSONResult.errorMsg("");
         }
@@ -82,5 +98,30 @@ public class RegistOrLoginController {
             String errorMsg = SearchFriendStatusEnum.getMsgByKey(status);
             return JSONResult.errorMsg(errorMsg);
         }
+    }
+
+    /**
+     * 发送添加好友的请求
+     * @param userId
+     * @param friendUsername
+     * @return
+     */
+    @PostMapping("addFriendRequest")
+    public JSONResult addFriendRequest(String userId, String friendUsername) {
+
+        //判断userId和friendUsername不能为空
+        if (StringUtils.isBlank(userId) || StringUtils.isBlank(friendUsername)) {
+            return JSONResult.errorMsg("");
+        }
+
+        //搜索用户不存在,搜索账号是自己,搜索已经是好友
+        Integer status = userService.preconditionSearchFriends(userId, friendUsername);
+        if (status.equals(SearchFriendStatusEnum.SUCCESS.status)) {
+            userService.sendFriendRequest(userId, friendUsername);
+        } else {
+            String errorMsg = SearchFriendStatusEnum.getMsgByKey(status);
+            return JSONResult.errorMsg(errorMsg);
+        }
+        return JSONResult.ok();
     }
 }

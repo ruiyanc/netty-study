@@ -47,4 +47,18 @@ public interface UserService {
      * @return
      */
     public User queryUserInfoByUsername(String username);
+
+    /**
+     * 修改昵称
+     * @param user
+     * @return
+     */
+    User updateUserInfo(User user);
+
+    /**
+     * 添加好友请求记录
+     * @param userId
+     * @param friendUsername
+     */
+    void sendFriendRequest(String userId, String friendUsername);
 }
